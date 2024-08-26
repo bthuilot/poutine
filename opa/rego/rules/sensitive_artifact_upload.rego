@@ -15,14 +15,17 @@ _upload_git_folder(step) if {
     some i
     step.uses == "actions/upload-artifact@v4"
     step["with"][i].name == "path"
-    step["with"][i].value == "."
+    lines := split(step["with"][i].value, "\n")
+    lines[_] == "."
+    startswith(lines[_], "!.git")
+#    step["with"][i].value == "."
 }
 
 
 results contains poutine.finding(rule, pkg.purl, {
     "path": workflow.path,
     "job": job.id,
-    "step": i,
+    "step": step,
     "details": "Sensitive artifact uploaded",
 }) if {
     pkg := input.packages[_]
@@ -30,6 +33,4 @@ results contains poutine.finding(rule, pkg.purl, {
     job := workflow.jobs[_]
     step := job.steps[i]
     _upload_git_folder(step)
-
-#    stepWith["path"] == "."
 }

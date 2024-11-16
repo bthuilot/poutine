@@ -33,7 +33,7 @@ results contains poutine.finding(rule, pkg.purl, {
 	"job": job.id,
 	"step": i,
 	"details": sprintf("Sources: %s", [concat(" ", exprs)]),
-	"trigger": github.events,
+	"trigger": [event | event := workflow.events[i].name],
 }) if {
 	pkg = input.packages[_]
 	workflow = pkg.github_actions_workflows[_]
@@ -48,7 +48,7 @@ results contains poutine.finding(rule, pkg.purl, {
 	"line": line,
 	"step": i,
 	"details": sprintf("Sources: %s", [concat(" ", exprs)]),
-	"trigger": github.events,
+	"trigger": [event | event := action.events[i].name],
 }) if {
 	pkg = input.packages[_]
 	action := pkg.github_actions_metadata[_]

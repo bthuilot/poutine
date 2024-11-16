@@ -51,9 +51,9 @@ results contains poutine.finding(rule, pkg_purl, {
 	"path": workflow_path,
 	"line": step.lines.run,
 	"details": sprintf("Detected usage of `%s`", [cmd]),
-	"triggers": github.events,
+	"triggers": workflow_events,
 }) if {
-	[pkg_purl, workflow_path, step] := _steps_after_untrusted_checkout[_]
+	[pkg_purl, workflow_path, workflow_events, step] := _steps_after_untrusted_checkout[_]
 	regex.match(
 		sprintf("([^a-z]|^)(%v)", [concat("|", build_commands[cmd])]),
 		step.run,
@@ -64,25 +64,27 @@ results contains poutine.finding(rule, pkg_purl, {
 	"path": workflow_path,
 	"line": step.lines.uses,
 	"details": sprintf("Detected usage the GitHub Action `%s`", [step.action]),
-	"triggers": github.events,
+	"triggers": workflow_events,
 }) if {
-	[pkg_purl, workflow_path, step] := _steps_after_untrusted_checkout[_]
+	[pkg_purl, workflow_path, workflow_events, step] := _steps_after_untrusted_checkout[_]
 	build_github_actions[step.action]
 }
 
-_steps_after_untrusted_checkout contains [pkg.purl, workflow.path, s.step] if {
+_steps_after_untrusted_checkout contains [pkg.purl, workflow.path, events, s.step] if {
 	pkg := input.packages[_]
 	workflow := pkg.github_actions_workflows[_]
 
 	utils.filter_workflow_events(workflow, github.events)
 
+    events := [event | event := workflow.events[i].name]
 	pr_checkout := utils.find_pr_checkouts(workflow)[_]
 	s := utils.workflow_steps_after(pr_checkout)[_]
 }
 
-_steps_after_untrusted_checkout contains [pkg_purl, workflow.path, s.step] if {
+_steps_after_untrusted_checkout contains [pkg_purl, workflow.path, events, s.step] if {
 	[pkg_purl, workflow] := _workflows_runs_from_pr[_]
 
+    events := [event | event := workflow.events[i].name]
 	pr_checkout := utils.find_pr_checkouts(workflow)[_]
 	s := utils.workflow_steps_after(pr_checkout)[_]
 }

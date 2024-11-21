@@ -31,6 +31,7 @@ results contains poutine.finding(rule, pkg.purl, {
 	"job": job.id,
 	"step": i,
 	"details": sprintf("'.git' folder is uploaded in step (%v)", [step.name]),
+	"event_triggers": [event | event := workflow.events[i].name],
 }) if {
 	some i
 	pkg := input.packages[_]

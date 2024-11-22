@@ -3,6 +3,7 @@ package opa
 import (
 	"context"
 	"github.com/boostsecurityio/poutine/models"
+	"github.com/boostsecurityio/poutine/results"
 	"github.com/open-policy-agent/opa/ast"
 
 	"fmt"
@@ -32,12 +33,12 @@ func TestOpaBuiltins(t *testing.T) {
 	}{
 		{
 			builtin:  "purl.parse_github_actions",
-			input:    "actions/checkout@v4",
+			input:    `"actions/checkout@v4","",""`,
 			expected: "pkg:githubactions/actions/checkout@v4",
 		},
 		{
 			builtin:  "purl.parse_docker_image",
-			input:    "alpine:latest",
+			input:    `"alpine:latest"`,
 			expected: "pkg:docker/alpine%3Alatest",
 		},
 	}
@@ -49,7 +50,8 @@ func TestOpaBuiltins(t *testing.T) {
 
 	for _, c := range cases {
 		var result interface{}
-		err := opa.Eval(context.TODO(), c.builtin+"(\""+c.input+"\")", nil, &result)
+		query := fmt.Sprintf(`%s(%s)`, c.builtin, c.input)
+		err := opa.Eval(context.TODO(), query, nil, &result)
 		noOpaErrors(t, err)
 
 		assert.Equal(t, c.expected, result)
@@ -228,7 +230,7 @@ func TestWithRulesConfig(t *testing.T) {
 	noOpaErrors(t, err)
 	ctx := context.TODO()
 
-	var rule *Rule
+	var rule *results.Rule
 	err = o.Eval(ctx, "data.rules.pr_runs_on_self_hosted.rule", nil, &rule)
 	noOpaErrors(t, err)
 	assert.Equal(t, []interface{}{}, rule.Config["allowed_runners"].Default)

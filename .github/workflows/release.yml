@@ -9,7 +9,7 @@ on:
 
 env:
   GO_VERSION: 1.23
-  GO_RELEASER_VERSION: v1.26.2
+  GO_RELEASER_VERSION: v2.4.7
   
 permissions: {}
 
@@ -24,7 +24,7 @@ jobs:
     - uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
       with:
         egress-policy: audit
-    - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       with:
         fetch-depth: 0
     - name: Setup Go
@@ -39,7 +39,7 @@ jobs:
         DOCKER_USERNAME: ${{ github.actor }}
         DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
     - name: Run GoReleaser
-      uses: goreleaser/goreleaser-action@5742e2a039330cbb23ebf35f046f814d4c6ff811 # v5
+      uses: goreleaser/goreleaser-action@9ed2f89a662bf1735a48bc8557fd212fa902bebf # v6.1.0
       with:
         distribution: goreleaser
         version: ${{ env.GO_RELEASER_VERSION }} # Not pinnable by hash, nor does it verify its signature
